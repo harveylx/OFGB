@@ -78,12 +78,12 @@ public partial class MainWindow : Window
         if (IsRunningAsAdministrator())
         {
             // Show Bing Results in Windows Search (Inverted, 1 == Disabled)
-            bool key14 = CreateKey("Software\\Policies\\Microsoft\\Windows\\Explorer", "DisableSearchBoxSuggestions");
-            bool key15 = CreateKey(CurVer + "Search", "BingSearchEnabled");
+            var key14 = CreateKey(@"Software\Policies\Microsoft\Windows\Explorer", "DisableSearchBoxSuggestions");
+            var key15 = CreateKey(CurVer + "Search", "BingSearchEnabled");
             cb11.IsChecked = !key14 && key15;
 
             // Disable Edge desktop search widget bar
-            bool key16 = CreateKey("Software\\Policies\\Microsoft\\Edge", "WebWidgetAllowed");
+            var key16 = CreateKey(@"Software\Policies\Microsoft\Edge", "WebWidgetAllowed");
             cb12.IsChecked = key16;
         }
         else
@@ -119,7 +119,6 @@ public partial class MainWindow : Window
     private static bool CreateKey(string loc, string key)
     {
         RegistryKey? keyRef;
-        int value;
 
         if (Registry.CurrentUser.OpenSubKey(loc, true) is not null)
         {
@@ -137,10 +136,10 @@ public partial class MainWindow : Window
             throw new InvalidOperationException("OFGB: Failed to create subkey during initialization!");
         }
 
-        value = Convert.ToInt32(keyRef.GetValue(key));
+        var value = Convert.ToInt32(keyRef.GetValue(key));
         keyRef.Close();
 
-        return !(value != 0);
+        return value == 0;
     }
 
     private static void ToggleOptions(string checkboxName, bool enable)
