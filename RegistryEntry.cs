@@ -1,8 +1,16 @@
-﻿namespace OFGB;
+﻿using System.Collections.Generic;
 
-public class RegistryEntry(string keyPath, string keyName, bool valueInverted = false)
+namespace OFGB;
+
+public class RegistryEntry
 {
-    public string KeyPath { get; } = keyPath;
-    public string KeyName { get; } = keyName;
-    public bool ValueInverted { get; } = valueInverted;
+    public string KeyPath { get; set; }
+    public string KeyName { get; set; }
+    public bool ValueInverted { get; set; } = false;
+    public bool RequiresAdminPermissions { get; set; } = false;
+}
+
+public class RegistryEntriesConfig
+{
+    public Dictionary<string, List<RegistryEntry>> RegistryEntries { get; set; }
 }
