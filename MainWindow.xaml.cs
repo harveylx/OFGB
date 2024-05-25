@@ -7,8 +7,6 @@ using System.Runtime.InteropServices;
 using System.Windows.Controls;
 using System.Security.Principal;
 using Microsoft.Extensions.Configuration;
-using System.Configuration;
-using System.Linq;
 
 namespace OFGB;
 
@@ -55,6 +53,12 @@ public partial class MainWindow : Window
         var keyDisabled = true;
         foreach (var registryEntry in registryEntries)
         {
+            if (registryEntry.RequiresAdminPermissions && !IsRunningAsAdministrator())
+            {
+                checkBox.IsEnabled = false;
+                checkBox.IsChecked = false;
+                return;
+            }
             keyDisabled &= IsKeyDisabled(registryEntry);
         }
         checkBox.IsChecked = keyDisabled;
@@ -62,9 +66,6 @@ public partial class MainWindow : Window
 
     private static bool IsKeyDisabled(RegistryEntry registryEntry)
     {
-        if (registryEntry.RequiresAdminPermissions && !IsRunningAsAdministrator())
-            return false;
-
         using var keyRef = Registry.CurrentUser.OpenSubKey(registryEntry.KeyPath, true) ?? Registry.CurrentUser.CreateSubKey(registryEntry.KeyPath);
         if (keyRef == null)
         {
