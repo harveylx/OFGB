@@ -24,9 +24,9 @@ jobs:
 
     - name: Zip self-contained artifact
       run: |
-        $publishDir = Get-ChildItem -Path . -Recurse -Filter publish | Where-Object { $_.FullName -match 'bin\\Release\\.*\\publish$' } \
-            Write-Output "Publish directory: $($publishDir.FullName)" \
-            Compress-Archive -Path "$($publishDir.FullName)\\*" -DestinationPath self-contained-app.zip
+        $publishDir = Get-ChildItem -Path . -Recurse -Filter publish | Where-Object { $_.FullName -match 'bin\\Release\\.*\\publish$' }
+        Write-Output "Publish directory: $($publishDir.FullName)"
+        Compress-Archive -Path "$($publishDir.FullName)\\*" -DestinationPath self-contained-app.zip
       shell: pwsh
 
     - name: Upload self-contained artifact
@@ -50,9 +50,9 @@ jobs:
       
     - name: Zip framework-dependent artifact
       run: |
-        $publishDir = Get-ChildItem -Path . -Recurse -Filter publish | Where-Object { $_.FullName -match 'bin\\Release\\.*\\publish$' } \
-            Write-Output "Publish directory: $($publishDir.FullName)" \
-            Compress-Archive -Path "$($publishDir.FullName)\\*" -DestinationPath framework-dependent-app.zip \
+        $publishDir = Get-ChildItem -Path . -Recurse -Filter publish | Where-Object { $_.FullName -match 'bin\\Release\\.*\\publish$' }
+        Write-Output "Publish directory: $($publishDir.FullName)"
+        Compress-Archive -Path "$($publishDir.FullName)\\*" -DestinationPath framework-dependent-app.zip
       shell: pwsh
 
     - name: Upload framework-dependent artifact
