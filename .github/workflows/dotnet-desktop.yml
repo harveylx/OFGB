@@ -20,7 +20,7 @@ jobs:
       run: dotnet restore
 
     - name: Build self-contained
-      run: dotnet publish --configuration Release --runtime win-x64 --self-contained true /p:PublishSinglFile=true --output ./output-self-contained
+      run: dotnet publish --configuration Release --runtime win-x64 -p:PublishSingleFile=true --self-contained true
 
     - name: Upload self-contained artifact
       uses: actions/upload-artifact@v4
@@ -39,7 +39,7 @@ jobs:
       run: dotnet restore
 
     - name: Build framework-dependent
-      run: dotnet publish --configuration Release --output ./output-framework-dependent
+      run: dotnet publish --configuration Release
 
     - name: Upload framework-dependent artifact
       uses: actions/upload-artifact@v4
