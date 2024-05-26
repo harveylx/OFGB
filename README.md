@@ -1,3 +1,7 @@
+<p align="center">
+    <img src="https://i.ibb.co/ZYgBD06/ofgbF.png" alt="A screenshot of OFGB"/>
+</p>
+
 # OFGB Fork
 
 This repository is a fork of the OFGB project created by xM4ddy. All credit and thanks go to the original owner for her hard work and dedication to developing this project. You can find the original repository [here](https://github.com/xM4ddy/OFGB). Please visit and support the original project!
