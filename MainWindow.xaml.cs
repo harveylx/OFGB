@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Interop;
 using System.Runtime.InteropServices;
@@ -31,14 +32,14 @@ public partial class MainWindow : Window
 
     private void LoadRegistryEntries()
     {
-        var checkboxRegistryList = new Dictionary<string, List<RegistryEntry>>();
-        _configuration.GetSection("RegistryEntries").Bind(checkboxRegistryList);
+        var registryEntriesByCheckbox = new Dictionary<string, List<RegistryEntry>>();
+        _configuration.GetSection("RegistryEntries").Bind(registryEntriesByCheckbox);
 
-        foreach (var checkbox in checkboxRegistryList)
+        foreach (var entry in registryEntriesByCheckbox)
         {
-            if (FindName(checkbox.Key) is CheckBox correspondingCheckbox)
+            if (FindName(entry.Key) is CheckBox checkBox)
             {
-                SetCheckBoxState(correspondingCheckbox, checkbox.Value);
+                SetCheckBoxState(checkBox, entry.Value);
             }
         }
     }
@@ -48,33 +49,68 @@ public partial class MainWindow : Window
         DwmSetWindowAttribute(new WindowInteropHelper(Application.Current.MainWindow).EnsureHandle(), 33, new int[2], sizeof(int));
     }
 
-    private static void SetCheckBoxState(CheckBox checkBox, IEnumerable<RegistryEntry> registryEntries)
+    private static void SetCheckBoxState(CheckBox checkBox, IReadOnlyCollection<RegistryEntry> registryEntries)
     {
-        var keyDisabled = true;
-        foreach (var registryEntry in registryEntries)
+        if (registryEntries.Any(re => re.RequiresAdminPermissions && !IsRunningAsAdministrator()))
         {
-            if (registryEntry.RequiresAdminPermissions && !IsRunningAsAdministrator())
-            {
-                checkBox.IsEnabled = false;
-                checkBox.IsChecked = false;
-                return;
-            }
-            keyDisabled &= IsKeyDisabled(registryEntry);
+            checkBox.IsEnabled = false;
+            return;
         }
-        checkBox.IsChecked = keyDisabled;
+
+        var allKeysExist = true;
+        var allKeysDisabled = true;
+
+        foreach (var entry in registryEntries)
+        {
+            if (!DoesKeyExist(entry))
+            {
+                allKeysExist = false;
+                break;
+            }
+
+            if (!IsKeyDisabled(entry))
+            {
+                allKeysDisabled = false;
+            }
+        }
+
+        checkBox.IsEnabled = allKeysExist;
+        checkBox.IsChecked = allKeysExist && allKeysDisabled;
+    }
+
+
+    private static bool DoesKeyExist(RegistryEntry registryEntry)
+    {
+        try
+        {
+            using var keyRef = Registry.CurrentUser.OpenSubKey(registryEntry.KeyPath);
+            return keyRef is not null;
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Failed to access registry key: {registryEntry.KeyPath}. Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            throw new InvalidOperationException($"Failed to access registry key: {registryEntry.KeyPath}", ex);
+        }
     }
 
     private static bool IsKeyDisabled(RegistryEntry registryEntry)
     {
-        using var keyRef = Registry.CurrentUser.OpenSubKey(registryEntry.KeyPath, true) ?? Registry.CurrentUser.CreateSubKey(registryEntry.KeyPath);
-        if (keyRef == null)
+        try
         {
-            MessageBox.Show("Failed to create a registry subkey during initialization!", "OFGB: Fatal Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            throw new InvalidOperationException("OFGB: Failed to create subkey during initialization!");
-        }
+            using var keyRef = Registry.CurrentUser.OpenSubKey(registryEntry.KeyPath);
+            if (keyRef is null)
+            {
+                return false;
+            }
 
-        var value = Convert.ToInt32(keyRef.GetValue(registryEntry.KeyName, 0));
-        return registryEntry.ValueInverted ? value != 0 : value == 0;
+            var value = Convert.ToInt32(keyRef.GetValue(registryEntry.KeyName, 0));
+            return registryEntry.ValueInverted ? value != 0 : value == 0;
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Failed to access registry key: {registryEntry.KeyPath}. Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            throw new InvalidOperationException($"Failed to access registry key: {registryEntry.KeyPath}", ex);
+        }
     }
 
     private static void ToggleOptions(string checkboxName, bool enable)
