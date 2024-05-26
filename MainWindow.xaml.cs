@@ -14,7 +14,7 @@ namespace OFGB;
 /// <summary>
 /// Interaction logic for MainWindow.xaml
 /// </summary>
-public partial class MainWindow : Window
+public partial class MainWindow
 {
     [LibraryImport("dwmapi.dll", EntryPoint = "DwmSetWindowAttribute")]
     internal static partial int DwmSetWindowAttribute(IntPtr hwnd, int attr, [In] int[] attrValue, int attrSize);
@@ -62,13 +62,14 @@ public partial class MainWindow : Window
 
         foreach (var entry in registryEntries)
         {
-            if (!DoesKeyExist(entry))
+            using var keyRef = DoesKeyExist(entry);
+            if (keyRef is null)
             {
                 allKeysExist = false;
                 break;
             }
 
-            if (!IsKeyDisabled(entry))
+            if (!IsKeyDisabled(entry, keyRef))
             {
                 allKeysDisabled = false;
             }
@@ -79,37 +80,30 @@ public partial class MainWindow : Window
     }
 
 
-    private static bool DoesKeyExist(RegistryEntry registryEntry)
+    private static RegistryKey? DoesKeyExist(RegistryEntry registryEntry)
     {
         try
         {
-            using var keyRef = Registry.CurrentUser.OpenSubKey(registryEntry.KeyPath);
-            return keyRef is not null;
+            return Registry.CurrentUser.OpenSubKey(registryEntry.KeyPath);
         }
-        catch (Exception ex)
+        catch (ArgumentNullException ex)
         {
             MessageBox.Show($"Failed to access registry key: {registryEntry.KeyPath}. Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            throw new InvalidOperationException($"Failed to access registry key: {registryEntry.KeyPath}", ex);
+            throw;
         }
     }
 
-    private static bool IsKeyDisabled(RegistryEntry registryEntry)
+    private static bool IsKeyDisabled(RegistryEntry registryEntry, RegistryKey keyRef)
     {
         try
         {
-            using var keyRef = Registry.CurrentUser.OpenSubKey(registryEntry.KeyPath);
-            if (keyRef is null)
-            {
-                return false;
-            }
-
             var value = Convert.ToInt32(keyRef.GetValue(registryEntry.KeyName, 0));
             return registryEntry.ValueInverted ? value != 0 : value == 0;
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Failed to access registry key: {registryEntry.KeyPath}. Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            throw new InvalidOperationException($"Failed to access registry key: {registryEntry.KeyPath}", ex);
+            MessageBox.Show($"Failed to read registry value: {registryEntry.KeyName}. Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            throw;
         }
     }
 
