@@ -22,6 +22,13 @@ jobs:
     - name: Build self-contained
       run: dotnet publish --configuration Release --runtime win-x64 -p:PublishSingleFile=true --self-contained true
 
+    - name: Zip self-contained artifact
+      run: |
+        $publishDir = Get-ChildItem -Path . -Recurse -Filter publish | Where-Object { $_.FullName -match 'bin\\Release\\.*\\publish$' }
+        Write-Output "Publish directory: $($publishDir.FullName)"
+        Compress-Archive -Path "$($publishDir.FullName)\\*" -DestinationPath self-contained-app.zip
+      shell: pwsh
+
     - name: Upload self-contained artifact
       uses: actions/upload-artifact@v4
       with:
@@ -40,6 +47,12 @@ jobs:
 
     - name: Build framework-dependent
       run: dotnet publish --configuration Release
+      
+      run: |
+        $publishDir = Get-ChildItem -Path . -Recurse -Filter publish | Where-Object { $_.FullName -match 'bin\\Release\\.*\\publish$' }
+        Write-Output "Publish directory: $($publishDir.FullName)"
+        Compress-Archive -Path "$($publishDir.FullName)\\*" -DestinationPath framework-dependent-app.zip
+      shell: pwsh
 
     - name: Upload framework-dependent artifact
       uses: actions/upload-artifact@v4
