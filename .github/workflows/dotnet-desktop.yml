@@ -33,7 +33,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: self-contained-app
-        path: ./output-self-contained
+        path: self-contained-app.zip
 
   build-framework-dependent:
     runs-on: windows-latest
@@ -59,4 +59,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: framework-dependent-app
-        path: ./output-framework-dependent
+        path: framework-dependent-app.zip
