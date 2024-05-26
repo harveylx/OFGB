@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace OFGB;
+﻿namespace OFGB;
 
 public class RegistryEntry
 {
@@ -8,9 +6,4 @@ public class RegistryEntry
     public string KeyName { get; set; }
     public bool ValueInverted { get; set; } = false;
     public bool RequiresAdminPermissions { get; set; } = false;
-}
-
-public class RegistryEntriesConfig
-{
-    public Dictionary<string, List<RegistryEntry>> RegistryEntries { get; set; }
 }

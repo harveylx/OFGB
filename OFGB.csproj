@@ -11,6 +11,7 @@
 	<DebugType>None</DebugType>
 	<DebugSymbols>False</DebugSymbols>
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	<NoWarn>$(NoWarn);CS8618</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Assets\OFGB.png" />
