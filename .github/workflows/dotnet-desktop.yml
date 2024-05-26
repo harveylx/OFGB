@@ -9,39 +9,15 @@ on:
       - main
 
 jobs:
-  setup-dotnet:
+  build-self-contained:
     runs-on: windows-latest
-
+    
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-
-    - name: Set up .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '8.x.x'
 
     - name: Restore dependencies
       run: dotnet restore
-
-    - name: Save dependencies
-      uses: actions/upload-artifact@v4
-      with:
-        name: restored-dependencies
-        path: ./
-
-  build-self-contained:
-    runs-on: windows-latest
-    needs: setup-dotnet
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Download restored dependencies
-      uses: actions/download-artifact@v4
-      with:
-        name: restored-dependencies
 
     - name: Build self-contained
       run: dotnet publish --configuration Release --self-contained --runtime win-x64 --output ./output-self-contained
@@ -54,16 +30,13 @@ jobs:
 
   build-framework-dependent:
     runs-on: windows-latest
-    needs: setup-dotnet
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Download restored dependencies
-      uses: actions/download-artifact@v4
-      with:
-        name: restored-dependencies
+    - name: Restore dependencies
+      run: dotnet restore
 
     - name: Build framework-dependent
       run: dotnet publish --configuration Release --output ./output-framework-dependent
