@@ -26,4 +26,4 @@ This project is licensed under the terms of the original OFGB repository. For mo
 
 ## Contributing
 
-Contributions are welcome! If you have suggestions or improvements, feel free to submit a pull request or open an issue.
+Contributions are welcome! If you have suggestions or improvements, feel free to submit a pull request or open an issue!
