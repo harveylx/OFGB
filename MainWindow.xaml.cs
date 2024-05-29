@@ -112,7 +112,7 @@ public partial class MainWindow
         switch (checkboxName)
         {
             case "cb1":
-                Registry.SetValue("HKEY_CURRENT_USER\\" + CurVer + "Explorer\\Advanced\\", "ShowSyncProviderNotifications", Convert.ToInt32(!enable));
+                Registry.SetValue("HKEY_CURRENT_USER\\" + CurVer + @"Explorer\Advanced\", "ShowSyncProviderNotifications", Convert.ToInt32(!enable));
                 break;
             case "cb2":
                 Registry.SetValue("HKEY_CURRENT_USER\\" + CurVer + "ContentDeliveryManager", "RotatingLockScreenOverlayEnabled", Convert.ToInt32(!enable));
@@ -142,7 +142,7 @@ public partial class MainWindow
                 Registry.SetValue("HKEY_CURRENT_USER\\" + CurVer + "Explorer\\Advanced", "Start_IrisRecommendations", Convert.ToInt32(!enable));
                 break;
             case "cb10":
-                Registry.SetValue("HKEY_CURRENT_USER\\" + CurVer + "Notifications\\Settings\\Windows.ActionCenter.SmartOptOut", "Enabled", Convert.ToInt32(!enable));
+                Registry.SetValue("HKEY_CURRENT_USER\\" + CurVer + @"Notifications\Settings\Windows.ActionCenter.SmartOptOut", "Enabled", Convert.ToInt32(!enable));
                 break;
             case "cb11":
                 Registry.SetValue("HKEY_CURRENT_USER\\Software\\Policies\\Microsoft\\Windows\\Explorer", "DisableSearchBoxSuggestions", Convert.ToInt32(enable)); // <- Inverted
